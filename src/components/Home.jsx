@@ -1,14 +1,5 @@
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Card,
-  CardHeader,
-  CardContent,
-  Alert,
-} from '@mui/material';
+import { AppBar, Toolbar, Typography, Alert, Paper } from '@mui/material';
 
-import '../App.css';
 import { useState } from 'react';
 import InputEmail from './InputEmail.jsx';
 import FindButton from './FindButton.jsx';
@@ -34,21 +25,30 @@ const Home = () => {
 
   return (
     <>
-      <AppBar>
+      <AppBar position="sticky">
         <Toolbar>
           <Typography variant="h6">INFO-3139 - Project 1</Typography>
         </Toolbar>
       </AppBar>
-      <Card className="card">
-        <CardHeader title="Find Name By Email" />
-        <CardContent className="card-content">
-          {showWarning && (
-            <Alert severity="warning">Please Enter an Email.</Alert>
-          )}
-          <InputEmail value={emailInput} onChange={handleEmailChange} />
-          <FindButton onClick={handleFindClick} />
-        </CardContent>
-      </Card>
+      <Paper
+        elevation={4}
+        sx={{
+          margin: '1em',
+          padding: '1em',
+          gap: '1em',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Typography variant="h5">Find Name By Email</Typography>
+
+        {showWarning && (
+          <Alert severity="warning">Please Enter an Email.</Alert>
+        )}
+
+        <InputEmail value={emailInput} onChange={handleEmailChange} />
+        <FindButton onClick={handleFindClick} />
+      </Paper>
     </>
   );
 };

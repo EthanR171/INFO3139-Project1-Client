@@ -1,17 +1,11 @@
-import { useState } from 'react';
+import Home from './components/Home.jsx';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <button
-      onClick={() => {
-        setCount(count + 1);
-        debugger;
-      }}
-    >
-      Count is {count}
-    </button>
+    <>
+      <Home />
+    </>
   );
 }
 

@@ -1,14 +1,8 @@
 import { Button } from '@mui/material';
-import '../App.css';
 
 const FindButton = ({ onClick }) => {
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      className="card"
-      onClick={onClick}
-    >
+    <Button fullWidth variant="contained" color="primary" onClick={onClick}>
       Find
     </Button>
   );
