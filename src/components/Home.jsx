@@ -30,22 +30,9 @@ const Home = () => {
           <Typography variant="h6">INFO-3139 - Project 1</Typography>
         </Toolbar>
       </AppBar>
-      <Paper
-        elevation={4}
-        sx={{
-          margin: '1em',
-          padding: '1em',
-          gap: '1em',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <Paper elevation={4} sx={{ margin: '1em', padding: '1em', gap: '1em', display: 'flex', flexDirection: 'column' }}>
         <Typography variant="h5">Find Name By Email</Typography>
-
-        {showWarning && (
-          <Alert severity="warning">Please Enter an Email.</Alert>
-        )}
-
+        {showWarning && <Alert severity="warning">Please Enter an Email.</Alert>}
         <InputEmail value={emailInput} onChange={handleEmailChange} />
         <FindButton onClick={handleFindClick} />
       </Paper>
