@@ -78,6 +78,7 @@ const Home = () => {
             label="User Email"
             value={state.inputText}
             onChange={(e) => {
+              setShowWarning(false);
               // FIRST WAY TO COPY STATE USING OBJECT.ASSIGN
               let stateCopy = Object.assign({}, state); // shallow copy
               Object.assign(stateCopy, { inputText: e.target.value }); // merges the new value into the copy
