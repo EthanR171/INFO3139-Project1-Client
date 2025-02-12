@@ -1,11 +1,11 @@
-import { AppBar, Toolbar, Typography, Alert, Paper, Snackbar, CardHeader, CardContent, TextField, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, Alert, Paper, Snackbar, CardHeader, CardContent, TextField, Button, IconButton, Menu, MenuItem } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 
 import { useState } from 'react';
-import InputEmail from './InputEmail.jsx';
-import FindButton from './FindButton.jsx';
 
 const Home = () => {
   const [showWarning, setShowWarning] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const [state, setState] = useState({
     inputText: '',
     snackbar: {
@@ -13,6 +13,26 @@ const Home = () => {
       message: '',
     },
   });
+
+  const refreshDatabase = async () => {
+    try {
+      let response = await fetch('http://localhost:9000/api/refresh', { method: 'POST' });
+      let result = await response.json();
+      let copiedState = Object.assign({ ...state }, { snackbar: { open: true, message: result.message } });
+      setState(copiedState);
+    } catch (e) {
+      console.warn(`${e}`);
+      setState({
+        ...state,
+        ...{
+          snackbar: {
+            open: true,
+            message: e.error,
+          },
+        },
+      });
+    }
+  };
 
   const findName = async (email) => {
     try {
@@ -62,11 +82,33 @@ const Home = () => {
     findName(state.inputText);
   };
 
+  const handleMenuOpen = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
   return (
     <>
       <AppBar position="sticky">
-        <Toolbar>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h6">INFO-3139 - Project 1</Typography>
+          <IconButton color="inherit" onClick={handleMenuOpen}>
+            <MenuIcon />
+          </IconButton>
+
+          <Menu anchorEl={menuAnchorEl} open={menuAnchorEl} onClose={handleMenuClose}>
+            <MenuItem
+              onClick={() => {
+                handleMenuClose(); // manually just close the menu so user doesn't have to click away (not needed but better flow)
+                refreshDatabase();
+              }}
+            >
+              Refresh Database
+            </MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
       <Paper elevation={4} sx={{ margin: '1em' }}>
