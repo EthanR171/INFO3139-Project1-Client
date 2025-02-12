@@ -4,7 +4,7 @@ import { useState } from 'react';
 import InputEmail from './InputEmail.jsx';
 import FindButton from './FindButton.jsx';
 
-const Home = () => {
+const Home = (props) => {
   const [emailInput, setEmailInput] = useState('');
   const [showWarning, setShowWarning] = useState(false);
 
@@ -15,12 +15,23 @@ const Home = () => {
     }
   };
 
+  const findName = async (email) => {
+    try {
+      const response = await fetch(`http://localhost:9000/api/users?email=${email}`);
+      let result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.warn(`Failed to establish connection with the server. ${error}`);
+      props.showSnackbar('Failed to establish connection with the server.');
+    }
+  };
+
   const handleFindClick = () => {
     if (!emailInput.trim()) {
       setShowWarning(true);
       return;
     }
-    alert(`This will be a call to /api/users/:${emailInput}`);
+    findName(emailInput);
   };
 
   return (
