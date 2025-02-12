@@ -1,37 +1,65 @@
-import { AppBar, Toolbar, Typography, Alert, Paper } from '@mui/material';
+import { AppBar, Toolbar, Typography, Alert, Paper, Snackbar, CardHeader, CardContent, TextField, Button } from '@mui/material';
 
 import { useState } from 'react';
 import InputEmail from './InputEmail.jsx';
 import FindButton from './FindButton.jsx';
 
-const Home = (props) => {
-  const [emailInput, setEmailInput] = useState('');
+const Home = () => {
   const [showWarning, setShowWarning] = useState(false);
-
-  const handleEmailChange = (e) => {
-    setEmailInput(e.target.value);
-    if (e.target.value.trim()) {
-      setShowWarning(false);
-    }
-  };
+  const [state, setState] = useState({
+    inputText: '',
+    snackbar: {
+      open: false,
+      message: '',
+    },
+  });
 
   const findName = async (email) => {
     try {
-      const response = await fetch(`http://localhost:9000/api/users?email=${email}`);
+      let response = await fetch(`http://localhost:9000/api/users?email=${email}`);
       let result = await response.json();
-      console.log(result);
-    } catch (error) {
-      console.warn(`Failed to establish connection with the server. ${error}`);
-      props.showSnackbar('Failed to establish connection with the server.');
+      let text = 'No results';
+      if (result.length > 1) {
+        text = `${result.length} users found`;
+      } else if (result.length > 0) {
+        text = `User ${result[0].name} found`;
+      }
+      // SECOND WAY TO COPY STATE USING SPREAD SYNTAX AND OBJECT.ASSIGN
+      let updatedCopiedState = Object.assign(
+        { ...state },
+        {
+          inputText: '',
+          snackbar: {
+            open: true,
+            message: text,
+          },
+        }
+      );
+      console.log(updatedCopiedState);
+      // Re-setting state for an update
+      setState(updatedCopiedState);
+    } catch (e) {
+      console.warn(`${e}`);
+      // Using the spread syntax to spread and merge both objects into a new one
+      setState({
+        ...state,
+        ...{
+          inputText: '',
+          snackbar: {
+            open: true,
+            message: 'Search failed',
+          },
+        },
+      });
     }
   };
 
   const handleFindClick = () => {
-    if (!emailInput.trim()) {
+    if (!state.inputText.trim()) {
       setShowWarning(true);
       return;
     }
-    findName(emailInput);
+    findName(state.inputText);
   };
 
   return (
@@ -41,12 +69,41 @@ const Home = (props) => {
           <Typography variant="h6">INFO-3139 - Project 1</Typography>
         </Toolbar>
       </AppBar>
-      <Paper elevation={4} sx={{ margin: '1em', padding: '1em', gap: '1em', display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h5">Find Name By Email</Typography>
-        {showWarning && <Alert severity="warning">Please Enter an Email.</Alert>}
-        <InputEmail value={emailInput} onChange={handleEmailChange} />
-        <FindButton onClick={handleFindClick} />
+      <Paper elevation={4} sx={{ margin: '1em' }}>
+        <CardHeader title="Find Name By Email" />
+        <CardContent>
+          {showWarning && <Alert severity="warning">Please Enter an Email.</Alert>}
+          <TextField
+            fullWidth
+            label="User Email"
+            value={state.inputText}
+            onChange={(e) => {
+              // FIRST WAY TO COPY STATE USING OBJECT.ASSIGN
+              let stateCopy = Object.assign({}, state); // shallow copy
+              Object.assign(stateCopy, { inputText: e.target.value }); // merges the new value into the copy
+              setState(stateCopy);
+            }}
+            sx={{ marginBottom: '1em' }}
+          />
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => {
+              // Reading inputText from state
+              handleFindClick(state.inputText);
+            }}
+          >
+            FIND
+          </Button>
+        </CardContent>
       </Paper>
+      <Snackbar
+        open={state.snackbar.open}
+        autoHideDuration={5000}
+        // update the state to close the snackbar (just copy the state and update the open property)
+        onClose={() => setState((prev) => ({ ...prev, snackbar: { ...prev.snackbar, open: false } }))}
+        message={state.snackbar.message}
+      />
     </>
   );
 };

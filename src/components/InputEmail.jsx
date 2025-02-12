@@ -9,7 +9,12 @@ const InputEmail = ({ value, onChange }) => {
         fullWidth
         label="User Email"
         value={value}
-        onChange={onChange}
+        onChange={(e) => {
+          let stateCopy = Object.assign({}, state);
+          Object.assign(stateCopy, { inputText: e.target.value });
+          setState(stateCopy);
+        }}
+        sx={{ marginBottom: '1em' }}
       />
     </Box>
   );
