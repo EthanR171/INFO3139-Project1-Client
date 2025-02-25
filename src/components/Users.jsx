@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { CardHeader, CardContent, FormControl, InputLabel, Select, MenuItem, Paper } from '@mui/material';
+import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Select, MenuItem, Paper } from '@mui/material';
+import Stack from '@mui/material/Stack';
 
 const Users = (props) => {
   // user data
@@ -36,6 +37,66 @@ const Users = (props) => {
     props.alert(`Selected ${user.name}`);
   };
 
+  // User Details - State
+
+  // For the CREATE and UPDATE, you'll want to duplicate the user state
+  // When that happens, use userInDetail (being updated or created) as well as selectedUser
+  // const [userInDetail, setUserInDetail] = useState('');
+
+  // User Details - Rendering
+  const renderUserInDetail = (user) => {
+    if (!user) return <></>; // Early return for conditional rendering - returns "empty" element
+    return (
+      <Paper elevation={4} sx={{ marginTop: '1em' }}>
+        <CardHeader title="Details"></CardHeader>
+        <CardContent>
+          <TextField fullWidth label="Name" value={user.name} sx={{ marginBottom: '1em' }} />
+          <TextField fullWidth label="Email" value={user.email} />
+          <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ marginTop: '1em' }}>
+            <Button variant="contained" color="error" onClick={onDelete}>
+              Delete
+            </Button>
+            <Button variant="contained" color="primary" onClick={onCancel}>
+              Cancel
+            </Button>
+          </Stack>
+        </CardContent>
+      </Paper>
+    );
+  };
+
+  // User Details - Delete Button Event
+  const onDelete = async () => {
+    try {
+      let response = await fetch(`http://localhost:9000/api/users/${selectedUser.email}`, {
+        method: 'DELETE',
+        headers: {
+          // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
+          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
+          Accept: 'text;application/json',
+          // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
+          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+          'Content-Type': 'application/json',
+        },
+      });
+      let result = await response.json();
+      console.log(result);
+
+      // How you verify if the delete happened depends on the API implementation
+      if (result.deletedCount) {
+        let usersWithoutDeleted = users.filter((u) => u.email != selectedUser.email);
+        setUsers(usersWithoutDeleted);
+      }
+      props.alert(`${selectedUser.name} ${result.deletedCount == 0 ? 'not ' : ''}deleted`);
+    } catch (e) {
+      console.warn(`${e}`);
+      props.alert('Failed to delete user');
+    }
+    setSelectedUser(null);
+  };
+
+  const onCancel = () => setSelectedUser(null);
+
   // Runs once per rendering
   useEffect(() => {
     loadUsers();
@@ -59,6 +120,13 @@ const Users = (props) => {
             </Select>
           </FormControl>
         </CardContent>
+      </Paper>
+
+      {/* Conditionally Rendering the user passed to the function*/}
+      {/* Even the Paper doesn't render if selectedUser is null, because there's nothing inside */}
+      {/* It "cascades" the non-rendering to optimize */}
+      <Paper elevation={4} sx={{ marginTop: '1em' }}>
+        {renderUserInDetail(selectedUser)}
       </Paper>
     </>
   );

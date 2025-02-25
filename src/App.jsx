@@ -29,6 +29,7 @@ function App() {
       let response = await fetch('http://localhost:9000/api/refresh', { method: 'POST' });
       let result = await response.json();
       alert(result.message); // show the result in the snackbar
+      window.location.reload(); // refresh the page
     } catch (e) {
       console.warn(`${e}`);
       alert(e.error); // show the error in the snackbar
