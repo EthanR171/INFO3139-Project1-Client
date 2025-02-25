@@ -41,7 +41,7 @@ function App() {
         <Header alert={alert} refreshDatabase={refreshDatabase} />
         <Routes>
           <Route path="/" element={<Home alert={alert} />} />
-          <Route path="/users" element={<Users />} />
+          <Route path="/users" element={<Users alert={alert} />} />
         </Routes>
 
         <Snackbar
