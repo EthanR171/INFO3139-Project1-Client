@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from 'react-router-dom';
 
 // This component is responsible for AppBar, Menu, and Database Refresh fucnction
 
 const Header = (props) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+
+  // react-router-dom hook to navigate to different pages
+  const navigate = useNavigate();
 
   const handleMenuOpen = (event) => {
     setMenuAnchorEl(event.currentTarget);
@@ -13,6 +17,11 @@ const Header = (props) => {
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+  };
+
+  const handleNavigate = (page) => {
+    navigate(page);
+    handleMenuClose();
   };
 
   return (
@@ -34,6 +43,20 @@ const Header = (props) => {
 
       {/* Menu is hidden similar to the snackbar and could be placed anywhere */}
       <Menu anchorEl={menuAnchorEl} open={menuAnchorEl} onClose={handleMenuClose}>
+        <MenuItem
+          onClick={() => {
+            handleNavigate('/');
+          }}
+        >
+          Home
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleNavigate('/users');
+          }}
+        >
+          Users
+        </MenuItem>
         <MenuItem
           onClick={() => {
             handleMenuClose(); // manually just close the menu so user doesn't have to click away (not needed but better flow)
