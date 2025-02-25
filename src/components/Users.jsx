@@ -7,11 +7,16 @@ const Users = (props) => {
   const [users, setUsers] = useState([]);
 
   const loadUsers = async () => {
-    let response = await fetch(`http://localhost:9000/api/users`);
-    let result = await response.json();
-    console.log(result);
-    setUsers(result);
-    return users;
+    try {
+      let response = await fetch(`http://localhost:9000/api/users`);
+      let result = await response.json();
+      console.log(result);
+      setUsers(result);
+      return users;
+    } catch (e) {
+      console.warn(`${e}`);
+      props.alert('Failed to load users');
+    }
   };
 
   // Select - Selected User
