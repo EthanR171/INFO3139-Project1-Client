@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Snackbar } from '@mui/material';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import Header from './components/Header.jsx';
 import Home from './components/Home.jsx';
+import Users from './components/Users.jsx';
 
 import './App.css';
 
@@ -34,16 +37,21 @@ function App() {
 
   return (
     <>
-      <Header alert={alert} refreshDatabase={refreshDatabase} />
-      <Home alert={alert} />
-      {/* Snackbar is a hidden element with absolute dynamic position, it can be placed anywhere */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={5000}
-        // Clear the snackbar state on close
-        onClose={() => setSnackbar({ open: false, message: '' })}
-        message={snackbar.message}
-      />
+      <BrowserRouter>
+        <Header alert={alert} refreshDatabase={refreshDatabase} />
+        <Routes>
+          <Route path="/" element={<Home alert={alert} />} />
+          <Route path="/users" element={<Users />} />
+        </Routes>
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={5000}
+          // Clear the snackbar state on close
+          onClose={() => setSnackbar({ open: false, message: '' })}
+          message={snackbar.message}
+        />
+      </BrowserRouter>
     </>
   );
 }
