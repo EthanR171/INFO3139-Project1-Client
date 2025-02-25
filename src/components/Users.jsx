@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Select, MenuItem, Paper } from '@mui/material';
+import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Select, MenuItem, Paper, Fab } from '@mui/material';
 import Stack from '@mui/material/Stack';
 
 const Users = (props) => {
@@ -133,6 +133,10 @@ const Users = (props) => {
       <Paper elevation={4} sx={{ marginTop: '1em' }}>
         {renderUserInDetail(selectedUser)}
       </Paper>
+
+      <Fab color="primary" aria-label="add" onClick={() => props.alert("coming soon")} sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}>
+        +
+      </Fab>
     </>
   );
 };
