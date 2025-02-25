@@ -46,7 +46,57 @@ const Users = (props) => {
 
   // For the CREATE and UPDATE, you'll want to duplicate the user state
   // When that happens, use userInDetail (being updated or created) as well as selectedUser
-  // const [userInDetail, setUserInDetail] = useState('');
+  const [userInDetail, setUserInDetail] = useState({ name: '', email: '' });
+
+  const [fabClicked, setFabClicked] = useState(false); // will be used to conditionally render the create user form
+  const [formErrors, setFormErrors] = useState({ name: false, email: false });
+
+  const createUserInDetail = (fabClicked) => {
+    if (!fabClicked) return <></>; // Early return for conditional rendering - returns "empty" element
+    return (
+      <Paper elevation={4} sx={{ marginTop: '1em' }}>
+        <CardHeader title="New User"></CardHeader>
+        <CardContent>
+          <TextField
+            fullWidth
+            label="Name"
+            value={userInDetail.name}
+            onChange={(e) => {
+              setUserInDetail({ ...userInDetail, name: e.target.value });
+              if (formErrors.name) {
+                setFormErrors({ ...formErrors, name: false }); // Remove error on change
+              }
+            }}
+            error={formErrors.name} // Highlights red if empty
+            helperText={formErrors.name ? 'Name is required' : ''}
+            sx={{ marginBottom: '1em' }}
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            value={userInDetail.email}
+            onChange={(e) => {
+              setUserInDetail({ ...userInDetail, email: e.target.value });
+              if (formErrors.email) {
+                setFormErrors({ ...formErrors, email: false }); // Remove error on change
+              }
+            }}
+            error={formErrors.email} // Only shows red after validation is triggered
+            helperText={formErrors.email ? 'Email is required' : ''}
+          />
+
+          <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ marginTop: '1em' }}>
+            <Button variant="contained" color="success" onClick={onCreate}>
+              Create
+            </Button>
+            <Button variant="contained" color="primary" onClick={createOnCancel}>
+              Cancel
+            </Button>
+          </Stack>
+        </CardContent>
+      </Paper>
+    );
+  };
 
   // User Details - Rendering
   const renderUserInDetail = (user) => {
@@ -61,13 +111,51 @@ const Users = (props) => {
             <Button variant="contained" color="error" onClick={onDelete}>
               Delete
             </Button>
-            <Button variant="contained" color="primary" onClick={onCancel}>
+            <Button variant="contained" color="primary" onClick={detailsOnCancel}>
               Cancel
             </Button>
           </Stack>
         </CardContent>
       </Paper>
     );
+  };
+
+  // User Details - Create Button Event
+  const onCreate = async () => {
+    const errors = {
+      name: !userInDetail.name,
+      email: !userInDetail.email,
+    };
+    setFormErrors(errors);
+    if (errors.name || errors.email) {
+      return;
+    }
+
+    props.alert(`Creating ${userInDetail.name} ${userInDetail.email}`);
+
+    // try {
+    //   let response = await fetch(`http://localhost:9000/api/users`, {
+    //     method: 'POST',
+    //     headers: {
+    //       // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
+    //       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
+    //       Accept: 'text;application/json',
+    //       // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
+    //       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(userInDetail),
+    //   });
+    //   let result = await response.json();
+    //   console.log(result);
+    //   // refresh the users list
+    //   loadUsers();
+    //   props.alert(`${selectedUser.name} created`);
+    // } catch (e) {
+    //   console.warn(`${e}`);
+    //   props.alert('Failed to create user');
+    // }
+    // setSelectedUser(null);
   };
 
   // User Details - Delete Button Event
@@ -100,7 +188,15 @@ const Users = (props) => {
     setSelectedUser(null);
   };
 
-  const onCancel = () => setSelectedUser(null);
+  const detailsOnCancel = () => {
+    setSelectedUser(null);
+  };
+
+  const createOnCancel = () => {
+    setFabClicked(false);
+    setUserInDetail({ name: '', email: '' });
+    setFormErrors({ name: false, email: false });
+  };
 
   // Runs once per rendering
   useEffect(() => {
@@ -134,7 +230,18 @@ const Users = (props) => {
         {renderUserInDetail(selectedUser)}
       </Paper>
 
-      <Fab color="primary" aria-label="add" onClick={() => props.alert("coming soon")} sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}>
+      <Paper elevation={4} sx={{ marginTop: '1em' }}>
+        {createUserInDetail(fabClicked)}
+      </Paper>
+
+      <Fab
+        color="primary"
+        aria-label="add"
+        onClick={() => {
+          setFabClicked(true);
+        }}
+        sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}
+      >
         +
       </Fab>
     </>
