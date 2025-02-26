@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Select, MenuItem, Paper, Fab } from '@mui/material';
 import Stack from '@mui/material/Stack';
 
@@ -6,7 +6,6 @@ const Users = (props) => {
   // user data
   const [users, setUsers] = useState([]);
 
-  const firstLoad = useRef(false); // Used to only show users loaded alert on first load
   const loadUsers = async () => {
     try {
       let response = await fetch(`http://localhost:9000/api/users`);
@@ -14,11 +13,8 @@ const Users = (props) => {
       console.log(result);
       setUsers(result);
 
-      // Show alert only on first load
-      if (!firstLoad.current) {
-        props.alert(`${result.length} users loaded`);
-        firstLoad.current = true; // Prevent future alerts
-      }
+      props.alert(`${result.length} users loaded`);
+
       return users;
     } catch (e) {
       console.warn(`${e}`);
@@ -133,10 +129,14 @@ const Users = (props) => {
       return;
     }
 
-    try {
-      // prepare data for POST (made a local object because setUserNameInput and setUserEmailInput are async so POST will fail)
-      const newUser = { name: userNameInput, email: userEmailInput };
+    // prepare data for POST (made a local object because setUserNameInput and setUserEmailInput are async so POST will fail)
+    // we would need to rollback should this user fail to be created because we need the Select component
+    // to have the datat immediatley so we will optimistically update the list before the POST is completed
+    const newUser = { name: userNameInput, email: userEmailInput };
 
+    setUsers((prevUsers) => [...prevUsers, newUser]); // Optimistically update the list (will rollback if POST fails)
+
+    try {
       let response = await fetch(`http://localhost:9000/api/users`, {
         method: 'POST',
         headers: {
@@ -149,18 +149,21 @@ const Users = (props) => {
         },
         body: JSON.stringify(newUser),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`); // will trigger rollback in catch block
+      }
+
       let result = await response.json();
       console.log(result);
 
-      // Pros: Guarntees the user is in the database (avoids stale data in the list)
-      // Cons: loadUsers() cant finsih quick enough to guarantee the user is in the list (MUI out of range warning)
-      loadUsers();
       setSelectedUser(newUser);
 
       props.alert(`${newUser.name} created`);
     } catch (e) {
       console.warn(`${e}`);
       props.alert('Failed to create user');
+      setUsers(users.filter((u) => u.email != newUser.email)); // Rollback the optimistic update
     }
     setFabClicked(false);
     setUserEmailInput('');
