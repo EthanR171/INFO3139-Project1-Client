@@ -20,13 +20,14 @@ const Users = (props) => {
   };
 
   // Select - Selected User
-  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedUser, setSelectedUser] = useState(''); // this apparently will turn into an object later
 
   // Select - Dynamic Rendering
   // These are a traditional one-line functional component. Data goes in => component goes out.
   // They could each be their own Component files using props as arguments
+  // LAB 11 CHANGE, added json stringify so that it works with the Select value and avoids out of range warnings
   const userToMenuItem = (user, key) => (
-    <MenuItem key={key} value={user}>
+    <MenuItem key={key} value={JSON.stringify(user)}>
       {user.name}
     </MenuItem>
   ); // key required - remove and see warning
@@ -36,84 +37,75 @@ const Users = (props) => {
   // How do you even figure out that it's even.target.value?
   // Documentation, experience, or console.log and tears
   const onSelectChange = (event) => {
-    let user = event.target.value;
-    console.log(user);
-    setSelectedUser(user);
-    props.alert(`Selected ${user.name}`);
+    //let user = event.target.value; // would be an object
+    //setSelectedUser(user);
+    const userObject = JSON.parse(event.target.value); // convert to a JSON string because Select can't store objects without out of range warnigns
+    setSelectedUser(userObject);
+    props.alert(`Selected ${userObject.name}`);
   };
 
   // User Details - State
 
   // For the CREATE and UPDATE, you'll want to duplicate the user state
   // When that happens, use userInDetail (being updated or created) as well as selectedUser
-  const [userInDetail, setUserInDetail] = useState({ name: '', email: '' });
+  // these will serve as useInDetail ...
+  const [userNameInput, setUserNameInput] = useState(''); // for tracking user input
+  const [userEmailInput, setUserEmailInput] = useState(''); // for tracking user input
 
   const [fabClicked, setFabClicked] = useState(false); // will be used to conditionally render the create user form
-  const [formErrors, setFormErrors] = useState({ name: false, email: false });
 
-  const createUserInDetail = (fabClicked) => {
-    if (!fabClicked) return <></>; // Early return for conditional rendering - returns "empty" element
+  // User Details - Rendering
+  const renderUserInDetail = () => {
+    if (!selectedUser && !fabClicked) return <></>; // No selection and no add mode
+
+    const isCreating = fabClicked; // Check if adding a new user
+    const user = isCreating ? { name: userNameInput, email: userEmailInput } : selectedUser; // Determine user data
+
     return (
       <Paper elevation={4} sx={{ marginTop: '1em' }}>
-        <CardHeader title="New User"></CardHeader>
+        <CardHeader title={isCreating ? 'New User' : 'User Details'} />
         <CardContent>
           <TextField
             fullWidth
             label="Name"
-            value={userInDetail.name}
+            value={user.name}
             onChange={(e) => {
-              setUserInDetail({ ...userInDetail, name: e.target.value });
-              if (formErrors.name) {
-                setFormErrors({ ...formErrors, name: false }); // Remove error on change
-              }
+              if (isCreating) setUserNameInput(e.target.value);
             }}
-            error={formErrors.name} // Highlights red if empty
-            helperText={formErrors.name ? 'Name is required' : ''}
             sx={{ marginBottom: '1em' }}
           />
           <TextField
             fullWidth
             label="Email"
-            value={userInDetail.email}
+            value={user.email}
             onChange={(e) => {
-              setUserInDetail({ ...userInDetail, email: e.target.value });
-              if (formErrors.email) {
-                setFormErrors({ ...formErrors, email: false }); // Remove error on change
-              }
+              if (isCreating) setUserEmailInput(e.target.value);
             }}
-            error={formErrors.email} // Only shows red after validation is triggered
-            helperText={formErrors.email ? 'Email is required' : ''}
           />
 
           <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ marginTop: '1em' }}>
-            <Button variant="contained" color="success" onClick={onCreate}>
-              Create
-            </Button>
-            <Button variant="contained" color="primary" onClick={createOnCancel}>
-              Cancel
-            </Button>
-          </Stack>
-        </CardContent>
-      </Paper>
-    );
-  };
-
-  // User Details - Rendering
-  const renderUserInDetail = (user) => {
-    if (!user) return <></>; // Early return for conditional rendering - returns "empty" element
-    return (
-      <Paper elevation={4} sx={{ marginTop: '1em' }}>
-        <CardHeader title="Details"></CardHeader>
-        <CardContent>
-          <TextField fullWidth label="Name" value={user.name} sx={{ marginBottom: '1em' }} />
-          <TextField fullWidth label="Email" value={user.email} />
-          <Stack direction="row" spacing={2} justifyContent="space-between" sx={{ marginTop: '1em' }}>
-            <Button variant="contained" color="error" onClick={onDelete}>
-              Delete
-            </Button>
-            <Button variant="contained" color="primary" onClick={detailsOnCancel}>
-              Cancel
-            </Button>
+            {isCreating ? (
+              <>
+                <Button variant="contained" color="success" onClick={onCreate}>
+                  Create
+                </Button>
+                <Button variant="contained" color="primary" onClick={createOnCancel}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="contained" color="warning" disabled={true} onClick={() => props.alert('Not implemented')}>
+                  Update
+                </Button>
+                <Button variant="contained" color="error" onClick={onDelete}>
+                  Delete
+                </Button>
+                <Button variant="contained" color="primary" onClick={detailsOnCancel}>
+                  Cancel
+                </Button>
+              </>
+            )}
           </Stack>
         </CardContent>
       </Paper>
@@ -122,40 +114,51 @@ const Users = (props) => {
 
   // User Details - Create Button Event
   const onCreate = async () => {
-    const errors = {
-      name: !userInDetail.name,
-      email: !userInDetail.email,
-    };
-    setFormErrors(errors);
-    if (errors.name || errors.email) {
+    // ensure userInDetail has name and email
+    if (!userNameInput || !userEmailInput) {
+      props.alert('Please enter name and email');
       return;
     }
 
-    props.alert(`Creating ${userInDetail.name} ${userInDetail.email}`);
+    // ensure email is unique
+    if (users.find((u) => u.email == userEmailInput)) {
+      props.alert('A user with that email already exists!');
+      return;
+    }
 
-    // try {
-    //   let response = await fetch(`http://localhost:9000/api/users`, {
-    //     method: 'POST',
-    //     headers: {
-    //       // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
-    //       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
-    //       Accept: 'text;application/json',
-    //       // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
-    //       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(userInDetail),
-    //   });
-    //   let result = await response.json();
-    //   console.log(result);
-    //   // refresh the users list
-    //   loadUsers();
-    //   props.alert(`${selectedUser.name} created`);
-    // } catch (e) {
-    //   console.warn(`${e}`);
-    //   props.alert('Failed to create user');
-    // }
-    // setSelectedUser(null);
+    try {
+      // prepare data for POST (made a local object because setUserNameInput and setUserEmailInput are async so POST will fail)
+      const newUser = { name: userNameInput, email: userEmailInput };
+
+      let response = await fetch(`http://localhost:9000/api/users`, {
+        method: 'POST',
+        headers: {
+          // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
+          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
+          Accept: 'text;application/json',
+          // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
+          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+      let result = await response.json();
+      console.log(result);
+
+      // Pros: Guarntees the user is in the database (avoids stale data in the list)
+      // Cons: loadUsers() cant finsih quick enough to guarantee the user is in the list (MUI out of range warning)
+      loadUsers();
+      setSelectedUser(newUser);
+
+      props.alert(`${newUser.name} created`);
+    } catch (e) {
+      console.warn(`${e}`);
+      props.alert('Failed to create user');
+    }
+    setFabClicked(false);
+    setUserEmailInput('');
+    setUserNameInput('');
+    //setSelectedUser(null);
   };
 
   // User Details - Delete Button Event
@@ -189,13 +192,13 @@ const Users = (props) => {
   };
 
   const detailsOnCancel = () => {
-    setSelectedUser(null);
+    setSelectedUser('');
   };
 
   const createOnCancel = () => {
     setFabClicked(false);
-    setUserInDetail({ name: '', email: '' });
-    setFormErrors({ name: false, email: false });
+    setUserEmailInput('');
+    setUserNameInput('');
   };
 
   // Runs once per rendering
@@ -215,8 +218,14 @@ const Users = (props) => {
 
             {/* This label doesn't render, but "sets up space" */}
             {/* Try "Select User", 11 spaces, and 11 dots */}
-            <Select fullWidth label=".................." defaultValue="" value={selectedUser ?? ''} onChange={onSelectChange}>
-              {/* Remove this and we don't have the user's names as options */}
+            <Select
+              fullWidth
+              label=".................."
+              defaultValue=""
+              value={selectedUser ? JSON.stringify(selectedUser) : ''} // stringify the object to avoid out of range warnings unuiqe to Select MUI
+              onChange={onSelectChange}
+              renderValue={(selected) => (selected ? JSON.parse(selected).name : 'Select User')} // once a user is selected, extract the name and display the string
+            >
               {usersMenuItems(users)}
             </Select>
           </FormControl>
@@ -228,10 +237,6 @@ const Users = (props) => {
       {/* It "cascades" the non-rendering to optimize */}
       <Paper elevation={4} sx={{ marginTop: '1em' }}>
         {renderUserInDetail(selectedUser)}
-      </Paper>
-
-      <Paper elevation={4} sx={{ marginTop: '1em' }}>
-        {createUserInDetail(fabClicked)}
       </Paper>
 
       <Fab
