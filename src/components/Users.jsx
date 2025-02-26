@@ -44,6 +44,7 @@ const Users = (props) => {
     //setSelectedUser(user);
     const userObject = JSON.parse(event.target.value); // convert to a JSON string because Select can't store objects without out of range warnigns
     setSelectedUser(userObject);
+    fabClicked && setFabClicked(false);
     props.alert(`Selected ${userObject.name}`);
   };
 
