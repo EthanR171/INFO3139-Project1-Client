@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Select, MenuItem, Paper, Fab } from '@mui/material';
 import Stack from '@mui/material/Stack';
 
@@ -6,12 +6,19 @@ const Users = (props) => {
   // user data
   const [users, setUsers] = useState([]);
 
+  const firstLoad = useRef(false); // Used to only show users loaded alert on first load
   const loadUsers = async () => {
     try {
       let response = await fetch(`http://localhost:9000/api/users`);
       let result = await response.json();
       console.log(result);
       setUsers(result);
+
+      // Show alert only on first load
+      if (!firstLoad.current) {
+        props.alert(`${result.length} users loaded`);
+        firstLoad.current = true; // Prevent future alerts
+      }
       return users;
     } catch (e) {
       console.warn(`${e}`);
