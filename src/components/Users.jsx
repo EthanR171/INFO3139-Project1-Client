@@ -3,8 +3,12 @@ import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Se
 import Stack from '@mui/material/Stack';
 
 const Users = (props) => {
-  // user data
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(''); // this will turn into an object
+  // user detail state
+  const [userNameInput, setUserNameInput] = useState(''); // for tracking user input
+  const [userEmailInput, setUserEmailInput] = useState(''); // for tracking user input
+  const [fabClicked, setFabClicked] = useState(false); // will be used to conditionally render the create user form
 
   const loadUsers = async () => {
     try {
@@ -21,9 +25,6 @@ const Users = (props) => {
       props.alert('Failed to load users');
     }
   };
-
-  // Select - Selected User
-  const [selectedUser, setSelectedUser] = useState(''); // this apparently will turn into an object later
 
   // Select - Dynamic Rendering
   // These are a traditional one-line functional component. Data goes in => component goes out.
@@ -47,16 +48,6 @@ const Users = (props) => {
     fabClicked && setFabClicked(false);
     props.alert(`Selected ${userObject.name}`);
   };
-
-  // User Details - State
-
-  // For the CREATE and UPDATE, you'll want to duplicate the user state
-  // When that happens, use userInDetail (being updated or created) as well as selectedUser
-  // these will serve as useInDetail ...
-  const [userNameInput, setUserNameInput] = useState(''); // for tracking user input
-  const [userEmailInput, setUserEmailInput] = useState(''); // for tracking user input
-
-  const [fabClicked, setFabClicked] = useState(false); // will be used to conditionally render the create user form
 
   // User Details - Rendering
   const renderUserInDetail = () => {
