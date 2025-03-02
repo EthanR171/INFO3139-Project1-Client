@@ -33,7 +33,7 @@ const Header = (props) => {
         {/* And space-between spaces them out */}
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {/* First element, to the left */}
-          <Typography variant="h6">INFO-3139 - Project 1</Typography>
+          <Typography variant="h6">INFO-3139 - Ethan Rivers</Typography>
           {/* Last element, to the left */}
           <IconButton color="inherit" onClick={handleMenuOpen}>
             <MenuIcon />
