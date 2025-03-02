@@ -66,7 +66,7 @@ const Users = (props) => {
   };
 
   const onUpdate = async () => {
-    // optimistically update the user list
+    // Optimistically update the user list
     const updatedUser = { name: userNameInput, email: userEmailInput };
     let updatedUsers = users.map((u) => (u.email === originalUser.email ? updatedUser : u));
     setUsers(updatedUsers);
@@ -78,13 +78,18 @@ const Users = (props) => {
       console.log(result);
       props.alert(`${updatedUser.name} updated`);
     } catch (e) {
-      console.warn(`${e}`);
+      //console.warn(`${e}`);
       props.alert('Failed to update user');
-      setUsers(users.map((u) => (u.email === updatedUser.email ? originalUser : u))); // rollback the optimistic update
+
+      // Rollback both name and email fields to originalUser
+      setUsers(users.map((u) => (u.email === updatedUser.email ? originalUser : u)));
       setSelectedUser(originalUser);
+      setOriginalUser(originalUser);
+      setUserNameInput(originalUser.name);
+      setUserEmailInput(originalUser.email);
+
       return;
     }
-    //setSelectedUser(null);
 
     props.alert(`${userNameInput} updated`);
   };
@@ -195,7 +200,7 @@ const Users = (props) => {
       console.warn(`${e}`);
       props.alert('Failed to create user');
       setUsers(users.filter((u) => u.email != newUser.email)); // Rollback the optimistic update
-      setSelectedUser(null);
+
       return;
     }
     setFabClicked(false);
