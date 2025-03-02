@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CardHeader, CardContent, FormControl, TextField, Button, InputLabel, Select, MenuItem, Paper, Fab } from '@mui/material';
 import Stack from '@mui/material/Stack';
+import * as api from '../util/api.js';
 
 const Users = (props) => {
   const [users, setUsers] = useState([]);
@@ -12,13 +13,10 @@ const Users = (props) => {
 
   const loadUsers = async () => {
     try {
-      let response = await fetch(`http://localhost:9000/api/users`);
-      let result = await response.json();
+      let result = await api.users.getAll(api.server('/api/users'));
       console.log(result);
       setUsers(result);
-
       props.alert(`${result.length} users loaded`);
-
       return users;
     } catch (e) {
       console.warn(`${e}`);
