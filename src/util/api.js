@@ -52,6 +52,7 @@ const del = async (url, body, responseFormat = 'json') => {
 
 const users = {
   getAll: () => get(server('/api/users')), // matchs the API routing in the server
+  create: (user) => post(server('/api/users'), user),
   delete: (user) => del(server(`/api/users/${user.email}`)),
 };
 

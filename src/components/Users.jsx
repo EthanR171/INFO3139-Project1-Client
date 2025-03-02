@@ -127,28 +127,9 @@ const Users = (props) => {
     setUsers((prevUsers) => [...prevUsers, newUser]); // Optimistically update the list (will rollback if POST fails)
 
     try {
-      let response = await fetch(`http://localhost:9000/api/users`, {
-        method: 'POST',
-        headers: {
-          // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
-          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
-          Accept: 'text;application/json',
-          // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
-          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newUser),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`); // will trigger rollback in catch block
-      }
-
-      let result = await response.json();
+      let result = await api.users.create(newUser);
       console.log(result);
-
       setSelectedUser(newUser);
-
       props.alert(`${newUser.name} created`);
     } catch (e) {
       console.warn(`${e}`);
