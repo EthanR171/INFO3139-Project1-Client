@@ -56,6 +56,11 @@ const users = {
   delete: (user) => del(server(`/api/users/${user.email}`)),
 };
 
+const alerts = {
+  getSearchData: () => get(server('/api/alerts')),
+  getDetails: (country_code) => get(server(`/api/alerts/${country_code}`)),
+};
+
 const util = {
   refreshDatabase: async (alert) => {
     try {
@@ -74,8 +79,9 @@ const util = {
 export {
   server,
   get,
-  post, // new export
-  del, // new export
+  post,
+  del,
   users,
-  util, // new export
+  util,
+  alerts, // new export
 };

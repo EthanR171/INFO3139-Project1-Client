@@ -1,68 +1,31 @@
 import { Alert, Paper, CardHeader, CardContent, TextField, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import * as api from '../util/api.js';
+
+import logo from '../assets/Back2TheFuture.jpg';
 
 const Home = (props) => {
-  const [showWarning, setShowWarning] = useState(false);
-  const [inputText, setInputText] = useState('');
-
-  const findName = async (email) => {
-    try {
-      let response = await fetch(`http://localhost:9000/api/users?email=${email}`);
-      let result = await response.json();
-      let text = 'No results';
-      if (result.length > 1) {
-        text = `${result.length} users found`;
-      } else if (result.length > 0) {
-        text = `User ${result[0].name} found`;
-      }
-      props.alert(text); // show the result in the snackbar
-      console.log(result);
-    } catch (e) {
-      console.warn(`${e}`);
-      props.alert('Search failed'); // show the result in the snackbar
-    }
+  const loadAlerts = async () => {
+    let result = await api.alerts.getSearchData();
+    console.log(result); // just printing to the console for now
+    props.alert(`${result.length} alerts loaded`); // feedback with the Snackbar
   };
 
-  const handleFindClick = () => {
-    if (!inputText.trim()) {
-      setShowWarning(true);
-      return;
-    }
-    findName(inputText);
-  };
+  useEffect(() => {
+    loadAlerts();
+  }, []);
 
   return (
     <>
-      <Paper elevation={4} sx={{ margin: '1em' }}>
-        <CardHeader title="Find Name By Email" />
+      <Paper elevation={4} sx={{ marginTop: '0.5em' }}>
+        <CardHeader title="Travel Alerts" />
         <CardContent>
-          {showWarning && <Alert severity="warning">Please Enter an Email.</Alert>}
-          <TextField
-            fullWidth
-            label="User Email"
-            value={inputText}
-            onChange={(e) => {
-              setInputText(e.target.value);
-              setShowWarning(false);
-            }}
-            sx={{ marginBottom: '1em' }}
-          />
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={() => {
-              // Reading inputText from state
-              handleFindClick(inputText);
-            }}
-          >
-            FIND
-          </Button>
+          <img style={{ width: '30%', maxWidth: '200px' }} src={logo} />
         </CardContent>
       </Paper>
     </>
   );
 };
-
 export default Home;
