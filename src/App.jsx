@@ -15,7 +15,7 @@ import './App.css';
 function App() {
   const theme = createTheme({
     palette: {
-      primary: { main: teal[500] },
+      primary: { main: teal[500], light: teal[300] },
     },
   });
 

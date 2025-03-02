@@ -73,7 +73,7 @@ const Users = (props) => {
     setSelectedUser(updatedUser);
     setOriginalUser(updatedUser);
 
-    try{
+    try {
       let result = await api.users.update(updatedUser);
       console.log(result);
       props.alert(`${updatedUser.name} updated`);
@@ -81,9 +81,10 @@ const Users = (props) => {
       console.warn(`${e}`);
       props.alert('Failed to update user');
       setUsers(users.map((u) => (u.email === updatedUser.email ? originalUser : u))); // rollback the optimistic update
+      setSelectedUser(originalUser);
+      return;
     }
     //setSelectedUser(null);
-    
 
     props.alert(`${userNameInput} updated`);
   };
@@ -136,7 +137,13 @@ const Users = (props) => {
               </>
             ) : (
               <>
-                <Button variant="contained" color="warning" disabled={!detailsChanged()} onClick={onUpdate}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ bgcolor: 'primary.light', '&:hover': { bgcolor: 'primary.main' } }}
+                  disabled={!detailsChanged()}
+                  onClick={onUpdate}
+                >
                   Update
                 </Button>
                 <Button variant="contained" color="error" onClick={onDelete}>
