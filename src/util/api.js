@@ -61,6 +61,13 @@ const alerts = {
   getDetails: (country_code) => get(server(`/api/alerts/${country_code}`)),
 };
 
+const bookmarks = {
+  getAll: () => get(server('/api/bookmarks')),
+  getDetails: (country_code) => get(server(`/api/bookmarks/${country_code}`)),
+  create: (alert) => post(server('/api/bookmarks'), alert),
+  remove: (alert) => del(server(`/api/bookmarks/${alert.country_code}`)),
+};
+
 const util = {
   refreshDatabase: async (alert) => {
     try {
@@ -83,5 +90,6 @@ export {
   del,
   users,
   util,
-  alerts, // new export
+  alerts,
+  bookmarks, // new export
 };
