@@ -27,12 +27,18 @@ const Home = (props) => {
   const [alerts, setAlerts] = useState([]); // State variable to hold Autocomplete options
   const [selectedAlert, setSelectedAlert] = useState();
 
-  const [bookarked, setBookmarked] = useState(false);
+  const [bookmarks, setBookmarks] = useState([]);
 
   const loadAlerts = async () => {
     let result = await api.alerts.getSearchData();
     setAlerts(result);
     props.alert(`${result.length} alerts loaded`);
+  };
+
+  const loadBookmarks = async () => {
+    let result = await api.bookmarks.getAll();
+    //console.log(result);
+    setBookmarks(result);
   };
 
   // Handling onChange event: 1. Web request for data > 2. Set state varaible > 3. Snackbar feedback
@@ -41,6 +47,39 @@ const Home = (props) => {
     let alertData = await api.alerts.getDetails(alert.country_code);
     setSelectedAlert(alertData);
     props.alert(`Retrieved alert for ${alert.country_name}`);
+  };
+
+  const toggleBookmark = async (alert) => {
+    if (!alert) return;
+
+    // alert is already bookmarked
+    if (bookmarks.find((bookmark) => bookmark.country_code === alert.country_code)) {
+      // optimisticaly remove the bookmark from the state while we wait for the api call
+      setBookmarks(bookmarks.filter((bookmark) => bookmark.country_code !== alert.country_code));
+      try {
+        let result = await api.bookmarks.remove(alert);
+        console.log(result);
+        props.alert(`Bookmark removed for ${alert.country_name}`);
+        return;
+      } catch (e) {
+        console.warn(`${e}`);
+        props.alert('Failed to remove bookmark');
+        setBookmarks([...bookmarks, alert]);
+        return;
+      }
+    }
+
+    // alert is not already bookmarked
+    setBookmarks([...bookmarks, alert]);
+    try {
+      let result = await api.bookmarks.create(alert);
+      console.log(result);
+      props.alert(`${alert.country_name} bookmarked`);
+    } catch (e) {
+      console.warn(`${e}`);
+      props.alert('Failed to add bookmark');
+      setBookmarks(bookmarks.filter((bookmark) => bookmark.country_code !== alert.country_code));
+    }
   };
 
   // A simple transformation arrow function to "stringify" our alert
@@ -65,6 +104,8 @@ const Home = (props) => {
   const renderAlert = (alert) => {
     if (!alert) return <></>;
 
+    // find out if the alert is bookmarke using the api call
+
     return (
       <Paper elevation={4} sx={{ marginTop: '0.5em' }}>
         <CardContent sx={{ marginTop: '0.5em' }}>
@@ -86,12 +127,11 @@ const Home = (props) => {
             color="primary"
             aria-label="add"
             onClick={() => {
-              setBookmarked(!bookarked);
-              props.alert('Coming soon...');
+              toggleBookmark(alert);
             }}
             sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}
           >
-            {bookarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+            {bookmarks.some((bookmark) => bookmark.country_code === alert.country_code) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
           </Fab>
         </CardContent>
       </Paper>
@@ -100,6 +140,7 @@ const Home = (props) => {
 
   useEffect(() => {
     loadAlerts();
+    loadBookmarks();
   }, []);
 
   return (
