@@ -66,6 +66,14 @@ const Users = (props) => {
   };
 
   const onUpdate = async () => {
+    // optimistically update the user list
+    const updatedUser = { name: userNameInput, email: userEmailInput };
+    let updatedUsers = users.map((u) => (u.email === originalUser.email ? updatedUser : u));
+    setUsers(updatedUsers);
+
+    setSelectedUser(updatedUser);
+    setOriginalUser(updatedUser);
+
     props.alert(`${userNameInput} updated`);
   };
 
