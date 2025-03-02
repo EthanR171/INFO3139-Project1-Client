@@ -7,6 +7,7 @@ import { teal } from '@mui/material/colors';
 import Header from './components/Header.jsx';
 import Home from './components/Home.jsx';
 import Users from './components/Users.jsx';
+import { util } from './util/api.js';
 
 import './App.css';
 
@@ -31,26 +32,11 @@ function App() {
     });
   };
 
-  // To be propogated down to Header component
-  const refreshDatabase = async () => {
-    try {
-      let response = await fetch('http://localhost:9000/api/refresh', { method: 'POST' });
-      let result = await response.json();
-      alert(result.message); // show the result in the snackbar
-      setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-    } catch (e) {
-      console.warn(`${e}`);
-      alert(e.error); // show the error in the snackbar
-    }
-  };
-
   return (
     <>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
-          <Header alert={alert} refreshDatabase={refreshDatabase} />
+          <Header alert={alert} refreshDatabase={() => util.refreshDatabase(alert)} />
           <Routes>
             <Route path="/" element={<Home alert={alert} />} />
             <Route path="/users" element={<Users alert={alert} />} />

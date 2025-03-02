@@ -55,11 +55,26 @@ const users = {
   delete: (user) => del(server(`/api/users/${user.email}`)),
 };
 
+const util = {
+  refreshDatabase: async (alert) => {
+    try {
+      let result = await post(server('/api/refresh'), {}); // No body needed for this request
+      alert(result.message); // Show the result in the snackbar
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (e) {
+      console.warn(`${e}`);
+      alert('Failed to refresh database');
+    }
+  },
+};
+
 export {
   server,
   get,
   post, // new export
   del, // new export
   users,
-  //util, // new export
+  util, // new export
 };
