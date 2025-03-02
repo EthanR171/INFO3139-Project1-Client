@@ -21,8 +21,45 @@ const get = async (url, responseFormat = 'json') => {
   return result;
 };
 
-const users = {
-  getAll: () => get(server('/api/users')), // matchs the API routing in the server
+const headers = {
+  // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
+  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
+  Accept: 'text,application/json',
+  // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
+  // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
+  'Content-Type': 'application/json',
 };
 
-export { get, users, server};
+const post = async (url, body, responseFormat = 'json') => {
+  let response = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(body),
+  });
+  let result = await response[responseFormat]();
+  return result;
+};
+
+const del = async (url, body, responseFormat = 'json') => {
+  let response = await fetch(url, {
+    method: 'DELETE',
+    headers,
+    body: JSON.stringify(body),
+  });
+  let result = await response[responseFormat]();
+  return result;
+};
+
+const users = {
+  getAll: () => get(server('/api/users')), // matchs the API routing in the server
+  delete: (user) => del(server(`/api/users/${user.email}`)),
+};
+
+export {
+  server,
+  get,
+  post, // new export
+  del, // new export
+  users,
+  //util, // new export
+};

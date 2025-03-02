@@ -164,18 +164,7 @@ const Users = (props) => {
   // User Details - Delete Button Event
   const onDelete = async () => {
     try {
-      let response = await fetch(`http://localhost:9000/api/users/${selectedUser.email}`, {
-        method: 'DELETE',
-        headers: {
-          // https://www.rfc-editor.org/rfc/rfc7231#section-5.3.2
-          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept
-          Accept: 'text;application/json',
-          // https://www.rfc-editor.org/rfc/rfc7231#section-3.1.1.5
-          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-          'Content-Type': 'application/json',
-        },
-      });
-      let result = await response.json();
+      let result = await api.users.delete(selectedUser);
       console.log(result);
 
       // How you verify if the delete happened depends on the API implementation
