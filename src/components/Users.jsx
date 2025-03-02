@@ -56,6 +56,19 @@ const Users = (props) => {
     props.alert(`Selected ${userObject.name}`);
   };
 
+  const detailsChanged = () => {
+    return (
+      originalUser &&
+      (userNameInput !== originalUser.name || userEmailInput !== originalUser.email) &&
+      userNameInput.trim() !== '' &&
+      userEmailInput.trim() !== ''
+    );
+  };
+
+  const onUpdate = async () => {
+    props.alert(`${userNameInput} updated`);
+  };
+
   // User Details - Rendering
   const renderUserInDetail = () => {
     if (!selectedUser && !fabClicked) return <></>; // No selection and no add mode
@@ -104,7 +117,7 @@ const Users = (props) => {
               </>
             ) : (
               <>
-                <Button variant="contained" color="warning" disabled={true} onClick={() => props.alert('Not implemented')}>
+                <Button variant="contained" color="warning" disabled={!detailsChanged()} onClick={onUpdate}>
                   Update
                 </Button>
                 <Button variant="contained" color="error" onClick={onDelete}>
