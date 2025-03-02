@@ -40,6 +40,16 @@ const post = async (url, body, responseFormat = 'json') => {
   return result;
 };
 
+const put = async (url, body, responseFormat = 'json') => {
+  let response = await fetch(url, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(body),
+  });
+  let result = await response[responseFormat]();
+  return result;
+};
+
 const del = async (url, body, responseFormat = 'json') => {
   let response = await fetch(url, {
     method: 'DELETE',
@@ -54,6 +64,7 @@ const users = {
   getAll: () => get(server('/api/users')), // matchs the API routing in the server
   create: (user) => post(server('/api/users'), user),
   delete: (user) => del(server(`/api/users/${user.email}`)),
+  update: (user) => put(server(`/api/users/${user.email}`), user),
 };
 
 const alerts = {
@@ -87,6 +98,7 @@ export {
   server,
   get,
   post,
+  put,
   del,
   users,
   util,

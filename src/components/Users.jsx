@@ -70,9 +70,20 @@ const Users = (props) => {
     const updatedUser = { name: userNameInput, email: userEmailInput };
     let updatedUsers = users.map((u) => (u.email === originalUser.email ? updatedUser : u));
     setUsers(updatedUsers);
-
     setSelectedUser(updatedUser);
     setOriginalUser(updatedUser);
+
+    try{
+      let result = await api.users.update(updatedUser);
+      console.log(result);
+      props.alert(`${updatedUser.name} updated`);
+    } catch (e) {
+      console.warn(`${e}`);
+      props.alert('Failed to update user');
+      setUsers(users.map((u) => (u.email === updatedUser.email ? originalUser : u))); // rollback the optimistic update
+    }
+    //setSelectedUser(null);
+    
 
     props.alert(`${userNameInput} updated`);
   };
