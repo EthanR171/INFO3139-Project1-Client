@@ -1,5 +1,22 @@
-import { Alert, Paper, CardHeader, CardContent, TextField, Button, IconButton, Menu, MenuItem, Autocomplete, Box, Divider, Typography } from '@mui/material';
+import {
+  Alert,
+  Paper,
+  CardHeader,
+  CardContent,
+  TextField,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  Autocomplete,
+  Box,
+  Divider,
+  Typography,
+  Fab,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 import { useState, useEffect } from 'react';
 import * as api from '../util/api.js';
@@ -9,6 +26,8 @@ import logo from '../assets/Back2TheFuture.jpg';
 const Home = (props) => {
   const [alerts, setAlerts] = useState([]); // State variable to hold Autocomplete options
   const [selectedAlert, setSelectedAlert] = useState();
+
+  const [bookarked, setBookmarked] = useState(false);
 
   const loadAlerts = async () => {
     let result = await api.alerts.getSearchData();
@@ -63,6 +82,17 @@ const Home = (props) => {
           ) : (
             <Typography variant="subtitle1">No Advisory Provided</Typography>
           )}
+          <Fab
+            color="primary"
+            aria-label="add"
+            onClick={() => {
+              setBookmarked(!bookarked);
+              props.alert('Coming soon...');
+            }}
+            sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}
+          >
+            {bookarked ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+          </Fab>
         </CardContent>
       </Paper>
     );
