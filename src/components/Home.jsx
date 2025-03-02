@@ -1,4 +1,4 @@
-import { Alert, Paper, CardHeader, CardContent, TextField, Button, IconButton, Menu, MenuItem, Autocomplete, Box } from '@mui/material';
+import { Alert, Paper, CardHeader, CardContent, TextField, Button, IconButton, Menu, MenuItem, Autocomplete, Box, Divider, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
 import { useState, useEffect } from 'react';
@@ -8,11 +8,20 @@ import logo from '../assets/Back2TheFuture.jpg';
 
 const Home = (props) => {
   const [alerts, setAlerts] = useState([]); // State variable to hold Autocomplete options
+  const [selectedAlert, setSelectedAlert] = useState();
 
   const loadAlerts = async () => {
     let result = await api.alerts.getSearchData();
     setAlerts(result);
     props.alert(`${result.length} alerts loaded`);
+  };
+
+  // Handling onChange event: 1. Web request for data > 2. Set state varaible > 3. Snackbar feedback
+  const fetchAlert = async (alert) => {
+    if (!alert) return; // User can delete the content in the field
+    let alertData = await api.alerts.getDetails(alert.country_code);
+    setSelectedAlert(alertData);
+    props.alert(`Retrieved alert for ${alert.country_name}`);
   };
 
   // A simple transformation arrow function to "stringify" our alert
@@ -29,6 +38,33 @@ const Home = (props) => {
       <Box key={key} {...nonKeyProps}>
         <>{alertAsText(option)}</>
       </Box>
+    );
+  };
+
+  // Conditionally rendering the full Alert data
+  // Good candidate to become it's own component file in Lab 12
+  const renderAlert = (alert) => {
+    if (!alert) return <></>;
+
+    return (
+      <Paper elevation={4} sx={{ marginTop: '0.5em' }}>
+        <CardContent sx={{ marginTop: '0.5em' }}>
+          <Typography variant="h5">{alertAsText(alert)}</Typography>
+          <Typography variant="h6" sx={{ mt: '0.5em' }}>
+            {alert.sub_region}
+          </Typography>
+          <Divider sx={{ mt: '1em', mb: '1em' }} />
+          {alert.advisory ? (
+            <>
+              <Typography variant="subtitle1">{alert.advisory}</Typography>
+              <Divider sx={{ mt: '1em', mb: '1em' }} />
+              <Typography variant="subtitle1">{alert.date}</Typography>
+            </>
+          ) : (
+            <Typography variant="subtitle1">No Advisory Provided</Typography>
+          )}
+        </CardContent>
+      </Paper>
     );
   };
 
@@ -50,10 +86,12 @@ const Home = (props) => {
             renderOption={renderAutocompleteOption} // Instructing how the data should be displayed
             renderInput={(params) => <TextField {...params} label="Find Alert" />} // Controls the "search field" part
             sx={{ marginTop: '0.5em' }}
-            onChange={(_event, selectedOption) => console.log(selectedOption)} // It's the 2nd argument that gives what's selected
+            onChange={(_event, selectedOption) => fetchAlert(selectedOption)} // Handle onChange event
           />
         </CardContent>
       </Paper>
+      {/* Conditionally render a selected Alert */}
+      {renderAlert(selectedAlert)}
     </>
   );
 };
