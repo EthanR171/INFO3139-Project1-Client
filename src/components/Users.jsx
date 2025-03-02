@@ -6,6 +6,7 @@ import * as api from '../util/api.js';
 const Users = (props) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(''); // this will turn into an object
+  const [originalUser, setOriginalUser] = useState(''); // this will be used to track any updates to the user
   const [userNameInput, setUserNameInput] = useState(''); // for tracking user input
   const [userEmailInput, setUserEmailInput] = useState(''); // for tracking user input
   const [fabClicked, setFabClicked] = useState(false); // will be used to conditionally render the create user form
@@ -48,6 +49,9 @@ const Users = (props) => {
     //setSelectedUser(user);
     const userObject = JSON.parse(event.target.value); // convert to a JSON string because Select can't store objects without out of range warnigns
     setSelectedUser(userObject);
+    setOriginalUser(userObject); // track the original user for updates
+    setUserNameInput(userObject.name);
+    setUserEmailInput(userObject.email);
     fabClicked && setFabClicked(false);
     props.alert(`Selected ${userObject.name}`);
   };
@@ -57,7 +61,6 @@ const Users = (props) => {
     if (!selectedUser && !fabClicked) return <></>; // No selection and no add mode
 
     const isCreating = fabClicked; // Check if adding a new user
-    const user = isCreating ? { name: userNameInput, email: userEmailInput } : selectedUser; // Determine user data
 
     return (
       <Paper elevation={4} sx={{ marginTop: '1em' }}>
@@ -66,30 +69,26 @@ const Users = (props) => {
           <TextField
             fullWidth
             label="Name"
-            value={user.name}
+            value={userNameInput}
             error={nameError}
             helperText={nameHelperText}
             onChange={(e) => {
-              if (isCreating) {
-                setUserNameInput(e.target.value);
-                setNameError(false);
-                setNameHelperText('');
-              }
+              setUserNameInput(e.target.value);
+              setNameError(false);
+              setNameHelperText('');
             }}
             sx={{ marginBottom: '1em' }}
           />
           <TextField
             fullWidth
             label="Email"
-            value={user.email}
+            value={userEmailInput}
             error={emailError}
             helperText={emailHelperText}
             onChange={(e) => {
-              if (isCreating) {
-                setUserEmailInput(e.target.value);
-                setEmailError(false);
-                setEmailHelperText('');
-              }
+              setUserEmailInput(e.target.value);
+              setEmailError(false);
+              setEmailHelperText('');
             }}
           />
 
@@ -193,8 +192,16 @@ const Users = (props) => {
 
   const createOnCancel = () => {
     setFabClicked(false);
-    setUserEmailInput('');
-    setUserNameInput('');
+
+    if (selectedUser) {
+      setUserNameInput(selectedUser.name);
+      setUserEmailInput(selectedUser.email);
+    } else {
+      setUserNameInput('');
+      setUserEmailInput('');
+    }
+
+    // Reset error messages
     setNameError(false);
     setEmailError(false);
     setNameHelperText('');
@@ -244,6 +251,8 @@ const Users = (props) => {
         aria-label="add"
         onClick={() => {
           setFabClicked(true);
+          setUserNameInput(''); // prepare fields for new user
+          setUserEmailInput(''); // prepare fields for new user
         }}
         sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}
       >
