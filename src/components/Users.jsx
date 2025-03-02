@@ -53,6 +53,12 @@ const Users = (props) => {
     setUserNameInput(userObject.name);
     setUserEmailInput(userObject.email);
     fabClicked && setFabClicked(false);
+
+    setEmailError(false);
+    setNameError(false);
+    setEmailHelperText('');
+    setNameHelperText('');
+
     props.alert(`Selected ${userObject.name}`);
   };
 
