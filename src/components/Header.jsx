@@ -59,6 +59,13 @@ const Header = (props) => {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            handleNavigate('/bookmarks');
+          }}
+        >
+          Bookmarks
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
             handleMenuClose(); // manually just close the menu so user doesn't have to click away (not needed but better flow)
             props.refreshDatabase(); // use the propogated function to refresh the database
           }}

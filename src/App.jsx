@@ -7,6 +7,7 @@ import { teal } from '@mui/material/colors';
 import Header from './components/Header.jsx';
 import Home from './components/Home.jsx';
 import Users from './components/Users.jsx';
+import Bookmarks from './components/Bookmarks.jsx';
 import { util } from './util/api.js';
 
 import './App.css';
@@ -40,6 +41,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home alert={alert} />} />
             <Route path="/users" element={<Users alert={alert} />} />
+            <Route path="/bookmarks" element={<Bookmarks alert={alert} />} />
           </Routes>
 
           <Snackbar
