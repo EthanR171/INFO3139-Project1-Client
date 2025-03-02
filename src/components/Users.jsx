@@ -6,10 +6,15 @@ import * as api from '../util/api.js';
 const Users = (props) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(''); // this will turn into an object
-  // user detail state
   const [userNameInput, setUserNameInput] = useState(''); // for tracking user input
   const [userEmailInput, setUserEmailInput] = useState(''); // for tracking user input
   const [fabClicked, setFabClicked] = useState(false); // will be used to conditionally render the create user form
+
+  // Validation states
+  const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [nameHelperText, setNameHelperText] = useState('');
+  const [emailHelperText, setEmailHelperText] = useState('');
 
   const loadUsers = async () => {
     try {
@@ -62,8 +67,14 @@ const Users = (props) => {
             fullWidth
             label="Name"
             value={user.name}
+            error={nameError}
+            helperText={nameHelperText}
             onChange={(e) => {
-              if (isCreating) setUserNameInput(e.target.value);
+              if (isCreating) {
+                setUserNameInput(e.target.value);
+                setNameError(false);
+                setNameHelperText('');
+              }
             }}
             sx={{ marginBottom: '1em' }}
           />
@@ -71,8 +82,14 @@ const Users = (props) => {
             fullWidth
             label="Email"
             value={user.email}
+            error={emailError}
+            helperText={emailHelperText}
             onChange={(e) => {
-              if (isCreating) setUserEmailInput(e.target.value);
+              if (isCreating) {
+                setUserEmailInput(e.target.value);
+                setEmailError(false);
+                setEmailHelperText('');
+              }
             }}
           />
 
@@ -107,17 +124,26 @@ const Users = (props) => {
 
   // User Details - Create Button Event
   const onCreate = async () => {
+    let hasError = false;
+
     // ensure userInDetail has name and email
-    if (!userNameInput || !userEmailInput) {
-      props.alert('Please enter name and email');
-      return;
+    if (!userNameInput) {
+      setNameError(true);
+      setNameHelperText('Name is required.');
+      hasError = true;
     }
 
-    // ensure email is unique
-    if (users.find((u) => u.email == userEmailInput)) {
-      props.alert('A user with that email already exists!');
-      return;
+    if (!userEmailInput) {
+      setEmailError(true);
+      setEmailHelperText('Email is required.');
+      hasError = true;
+    } else if (users.find((u) => u.email === userEmailInput)) {
+      setEmailError(true);
+      setEmailHelperText('A user with that email already exists.');
+      hasError = true;
     }
+
+    if (hasError) return; // Stop execution if validation fails
 
     // prepare data for POST (made a local object because setUserNameInput and setUserEmailInput are async so POST will fail)
     // we would need to rollback should this user fail to be created because we need the Select component
@@ -169,6 +195,10 @@ const Users = (props) => {
     setFabClicked(false);
     setUserEmailInput('');
     setUserNameInput('');
+    setNameError(false);
+    setEmailError(false);
+    setNameHelperText('');
+    setEmailHelperText('');
   };
 
   // Runs once per rendering
