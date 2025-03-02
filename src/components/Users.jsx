@@ -137,13 +137,7 @@ const Users = (props) => {
               </>
             ) : (
               <>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  sx={{ bgcolor: 'primary.light', '&:hover': { bgcolor: 'primary.main' } }}
-                  disabled={!detailsChanged()}
-                  onClick={onUpdate}
-                >
+                <Button variant="contained" color="primary" sx={{ bgcolor: 'primary.light' }} disabled={!detailsChanged()} onClick={onUpdate}>
                   Update
                 </Button>
                 <Button variant="contained" color="error" onClick={onDelete}>
@@ -194,15 +188,19 @@ const Users = (props) => {
       let result = await api.users.create(newUser);
       console.log(result);
       setSelectedUser(newUser);
+      setOriginalUser(newUser);
       props.alert(`${newUser.name} created`);
     } catch (e) {
+      // this section is untested and has bugs. come back later and fix it
       console.warn(`${e}`);
       props.alert('Failed to create user');
       setUsers(users.filter((u) => u.email != newUser.email)); // Rollback the optimistic update
+      setSelectedUser(null);
+      return;
     }
     setFabClicked(false);
-    setUserEmailInput('');
-    setUserNameInput('');
+    setUserEmailInput(newUser.email);
+    setUserNameInput(newUser.name);
     //setSelectedUser(null);
   };
 
