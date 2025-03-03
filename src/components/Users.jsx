@@ -72,32 +72,26 @@ const Users = (props) => {
   };
 
   const onUpdate = async () => {
-    // Optimistically update the user list
     const updatedUser = { name: userNameInput, email: userEmailInput };
-    let updatedUsers = users.map((u) => (u.email === originalUser.email ? updatedUser : u));
-    setUsers(updatedUsers);
-    setSelectedUser(updatedUser);
-    setOriginalUser(updatedUser);
+    const oldEmail = originalUser.email; // Store old email before update
 
     try {
-      let result = await api.users.update(updatedUser);
+      let result = await api.users.update(oldEmail, updatedUser); // Pass old email
       console.log(result);
-      props.alert(`${updatedUser.name} updated`);
+      props.alert(`${result.message}`);
+
+      // Update the local state
+      setUsers(users.map((u) => (u.email === oldEmail ? updatedUser : u)));
+      setSelectedUser(updatedUser);
+      setOriginalUser(updatedUser);
     } catch (e) {
-      //console.warn(`${e}`);
+      console.warn(`${e}`);
       props.alert('Failed to update user');
 
-      // Rollback both name and email fields to originalUser
-      setUsers(users.map((u) => (u.email === updatedUser.email ? originalUser : u)));
-      setSelectedUser(originalUser);
-      setOriginalUser(originalUser);
+      // Rollback to original user data
       setUserNameInput(originalUser.name);
       setUserEmailInput(originalUser.email);
-
-      return;
     }
-
-    props.alert(`${userNameInput} updated`);
   };
 
   // User Details - Rendering
