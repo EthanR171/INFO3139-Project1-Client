@@ -234,6 +234,12 @@ const Users = (props) => {
 
   // User Details - Delete Button Event
   const onDelete = async () => {
+    // reset error flags
+    setEmailError(false);
+    setNameError(false);
+    setEmailHelperText('');
+    setNameHelperText('');
+
     try {
       let result = await api.users.delete(selectedUser);
       console.log(result);
