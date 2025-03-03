@@ -324,6 +324,10 @@ const Users = (props) => {
           setFabClicked(true);
           setUserNameInput(''); // prepare fields for new user
           setUserEmailInput(''); // prepare fields for new user
+          setNameError(false);
+          setEmailError(false);
+          setNameHelperText('');
+          setEmailHelperText('');
         }}
         sx={{ position: 'fixed', bottom: 16, right: 16, fontSize: '1.5em' }}
       >
