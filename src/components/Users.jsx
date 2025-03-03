@@ -63,15 +63,32 @@ const Users = (props) => {
   };
 
   const detailsChanged = () => {
-    return (
-      originalUser &&
-      (userNameInput !== originalUser.name || userEmailInput !== originalUser.email) &&
-      userNameInput.trim() !== '' &&
-      userEmailInput.trim() !== ''
-    );
+    return originalUser && (userNameInput !== originalUser.name || userEmailInput !== originalUser.email);
   };
 
   const onUpdate = async () => {
+    let hasError = false;
+
+    if (!userNameInput.trim()) {
+      setNameError(true);
+      setNameHelperText('Name is required.');
+      hasError = true;
+    } else {
+      setNameError(false);
+      setNameHelperText('');
+    }
+
+    if (!userEmailInput.trim()) {
+      setEmailError(true);
+      setEmailHelperText('Email is required.');
+      hasError = true;
+    } else {
+      setEmailError(false);
+      setEmailHelperText('');
+    }
+
+    if (hasError) return;
+
     const updatedUser = { name: userNameInput, email: userEmailInput };
     const oldEmail = originalUser.email; // Store old email before update
 
@@ -161,6 +178,12 @@ const Users = (props) => {
 
   // User Details - Create Button Event
   const onCreate = async () => {
+    // reset error flags
+    setNameError(false);
+    setEmailError(false);
+    setNameHelperText('');
+    setEmailHelperText('');
+
     let hasError = false;
 
     // ensure userInDetail has name and email
